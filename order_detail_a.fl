@@ -1,0 +1,43 @@
+LOGON 10.200.100.194/dbc,dbc;
+
+DATABASE qastage;
+DROP TABLE order_detail_a_err1;
+DROP TABLE order_detail_a_err2;
+
+
+DELETE FROM order_detail_a;
+
+BEGIN LOADING order_detail_a
+ERRORFILES order_detail_a_err1, order_detail_a_err2
+CHECKPOINT 10000;
+
+SET RECORD VARTEXT ",";
+
+DEFINE
+order_id (VARCHAR(10)),
+order_date (VARCHAR(30)),
+product_id (VARCHAR(30)),
+quantity (VARCHAR(30)),
+price (VARCHAR(30)),
+last_update (VARCHAR(30)),
+FILE=/root/pelican_qa/order_detail_p_19502017.txt;
+
+INSERT INTO qastage.order_detail_a(
+order_id,
+order_date,
+product_id,
+quantity,
+price,
+last_update
+)
+VALUES (:order_id,
+:order_date,
+:product_id,
+:quantity,
+:price,
+:last_update
+);
+
+END LOADING;
+
+LOGOFF;

@@ -1,0 +1,36 @@
+LOGON 10.200.100.194/dbc,dbc;
+
+DATABASE qastage;
+DROP TABLE dim_product_t_err3;
+DROP TABLE dim_product_t_err4;
+
+DELETE FROM dim_product_t;
+
+BEGIN LOADING dim_product_t
+ERRORFILES dim_product_t_err3, dim_product_t_err4
+CHECKPOINT 10000;
+
+SET RECORD VARTEXT ",";
+
+DEFINE
+product_key (VARCHAR(10)),
+product_id (VARCHAR(30)),
+product_name (VARCHAR(30)),
+description (VARCHAR(30)),
+FILE=/root/pelican_qa/${1};
+
+INSERT INTO qastage.dim_product_t(
+product_key,
+product_id,
+product_name,
+description
+)
+VALUES (:product_key,
+:product_id,
+:product_name,
+:description
+);
+
+END LOADING;
+
+LOGOFF;
